@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Crushers Time Tracking Machine</title>
+	<style>
+/* Reset default styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Main styles */
+body {
+  background: #191919;
+  color: #fff;
+  font-family: sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+h1 {
+  margin-top: 40px;
+  margin-bottom: 20px;
+  width: 100%;
+  color: #999999;
+  font-size: 32px;
+}
+
+table {
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: none;
+  padding: 2px;
+  text-align: center;
+}
+
+th {
+  background: #000000;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+tr:nth-child(even) {
+  background-color: #191919;
+}
+
+tr:hover {
+  background-color: #000000;
+}
+
+button {
+  background: linear-gradient(to right, #ff4d4d, #ff0066);
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 5px;
+  padding: 10px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background: linear-gradient(to right, #ff0066, #ff4d4d);
+}
+
+input[type="text"] {
+  background-color: transparent;
+  border: none;
+  color: #ff4d4d;
+  font-family: sans-serif;
+  font-size: 36px;
+  line-height: 1;
+  margin-top: 0px;
+  padding: 5px;
+  text-align: center;
+  width: 80%;
+  text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
+#output-container {
+  max-width: 800px;
+  width: 100%;
+  margin: 20px auto;
+}
+
+#output {
+  height: calc(45vh - 160px);
+  margin: 20px 0 0;
+  overflow-y: auto;
+  font-family: sans-serif;
+  font-size: 12px;
+  padding: 20px;
+  width: 100%;
+  background-color: #191919;
+  color: #999999;
+  border: 2px solid #ff4d4d;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive styles */
+@media only screen and (max-width: 600px) {
+  h1 {
+    font-size: 28px;
+  }
+
+  table {
+    font-size: 14px;
+  }
+
+  th,
+  td {
+    padding: 5px;
+  }
+
+  input[type="text"] {
+    font-size: 24px;
+  }
+
+  #output {
+    height: calc(50vh - 220px);
+    font-size: 32px;
+    margin: 10px 0 0;
+  }
+}
+
+
+</style>
+
+<script>
+  let timers = {};
+
+  function startTimer(id) {
+    if (timers[id]) {
+      stopTimer(id);
+    }
+
+    let startTime = Date.now();
+    let intervalId = setInterval(function() {
+      let elapsedTime = Date.now() - startTime;
+      let timeText = formatTime(elapsedTime);
+      document.getElementById(id).value = timeText;
+    }, 10);
+    timers[id] = intervalId;
+    updateOutputText();
+    document.getElementById("start" + id).style.display = "none";
+    document.getElementById("stop" + id).style.display = "inline";
+  }
+
+  function stopTimer(id) {
+    clearInterval(timers[id]);
+    delete timers[id];
+    updateOutputText();
+    document.getElementById("stop" + id).style.display = "none";
+    document.getElementById("start" + id).style.display = "inline";
+  }
+
+  function updateOutputText() {
+    let outputText = "";
+    let rows = document.querySelectorAll("tbody tr");
+
+    rows.forEach(function(row) {
+      let id = row.querySelector("input").id;
+      let action = row.querySelector("td:first-child").textContent;
+      let time = row.querySelector("input").value;
+      outputText += action + ": " + time + "\n";
+    });
+
+    document.getElementById("output").value = outputText;
+  }
+
+  function formatTime(milliseconds) {
+    let minutes = Math.floor(milliseconds / 60000);
+    let seconds = Math.floor((milliseconds % 60000) / 1000);
+    let hundredths = Math.floor((milliseconds % 1000) / 10);
+    return padNumber(minutes) + ":" + padNumber(seconds) + "." + padNumber(hundredths);
+  }
+
+  function padNumber(number) {
+    if (number < 10) {
+      return "0" + number;
+    } else {
+      return number.toString();
+    }
+  }
+
+  // Add new function to update output text position
+  function updateOutputPosition() {
+    let tableWidth = document.querySelector('table').offsetWidth;
+    let tableHeight = document.querySelector('table').offsetHeight;
+    let outputWidth = document.getElementById('output').offsetWidth;
+    let outputHeight = document.getElementById('output').offsetHeight;
+
+    let outputX = tableWidth + 20;
+    let outputY = (tableHeight / 2) - (outputHeight / 2);
+
+    let output = document.getElementById('output');
+    output.style.left = outputX + 'px';
+    output.style.top = outputY + 'px';
+  }
+
+  // Call updateOutputPosition function on window resize
+  window.addEventListener('resize', function() {
+    updateOutputPosition();
+  });
+
+  // Call updateOutputPosition function initially
+  updateOutputPosition();
+</script>
+</head>
+<body>
+	<h1>CRUSHERS TIME TRACKING MACHINE</h1>
+<div class="container">
+<table>
+<thead>
+<tr>
+<th>Streets</th>
+<th>Start/Stop</th>
+<th>Time (mm:ss.hh)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PF ACTION 1</td>
+<td>
+<button id="start1" onclick="startTimer('timer1')">Start</button>
+<button id="stop1" style="display: none" onclick="stopTimer('timer1')">Stop</button>
+</td>
+<td><input id="timer1" type="text" value=""></td>
+</tr>
+<tr>
+<td>PF ACTION 2</td>
+<td>
+<button id="start2" onclick="startTimer('timer2')">Start</button>
+<button id="stop2" style="display: none" onclick="stopTimer('timer2')">Stop</button>
+</td>
+<td><input id="timer2" type="text" value=""></td>
+</tr>
+<tr>
+<td>PF ACTION 3</td>
+<td>
+<button id="start3" onclick="startTimer('timer3')">Start</button>
+<button id="stop3" style="display: none" onclick="stopTimer('timer3')">Stop</button>
+</td>
+<td><input id="timer3" type="text" value=""></td>
+</tr>
+<tr>
+<td>PF ACTION 4</td>
+<td>
+<button id="start4" onclick="startTimer('timer4')">Start</button>
+<button id="stop4" style="display: none" onclick="stopTimer('timer4')">Stop</button>
+</td>
+<td><input id="timer4" type="text" value=""></td>
+</tr>
+<tr>
+<td>F ACTION 1</td>
+<td>
+<button id="start5" onclick="startTimer('timer5')">Start</button>
+<button id="stop5" style="display: none" onclick="stopTimer('timer5')">Stop</button>
+</td>
+<td><input id="timer5" type="text" value=""></td>
+</tr>
+<tr>
+<td>F ACTION 2</td>
+<td>
+<button id="start6" onclick="startTimer('timer6')">Start</button>
+<button id="stop6" style="display: none" onclick="stopTimer('timer6')">Stop</button>
+</td>
+<td><input id="timer6" type="text" value=""></td>
+</tr>
+<tr>
+<td>F ACTION 3</td>
+<td>
+<button id="start7" onclick="startTimer('timer7')">Start</button>
+<button id="stop7" style="display: none" onclick="stopTimer('timer7')">Stop</button>
+</td>
+<td><input id="timer7" type="text" value=""></td>
+</tr>
+<tr>
+<td>F ACTION 4</td>
+<td>
+<button id="start8" onclick="startTimer('timer8')">Start</button>
+<button id="stop8" style="display: none" onclick="stopTimer('timer8')">Stop</button>
+</td>
+<td><input id="timer8" type="text" value=""></td>
+</tr>
+<tr>
+<td>T ACTION 1</td>
+<td>
+<button id="start9" onclick="startTimer('timer9')">Start</button>
+<button id="stop9" style="display: none" onclick="stopTimer('timer9')">Stop</button>
+</td>
+<td><input id="timer9" type="text" value=""></td>
+</tr>
+<tr>
+<td>T ACTION 2</td>
+<td>
+<button id="start10" onclick="startTimer('timer10')">Start</button>
+<button id="stop10" style="display: none" onclick="stopTimer('timer10')">Stop</button>
+</td>
+<td><input id="timer10" type="text" value=""></td>
+</tr>
+<tr>
+<td>T ACTION 3</td>
+<td>
+<button id="start11" onclick="startTimer('timer11')">Start</button>
+<button id="stop11" style="display: none" onclick="stopTimer('timer11')">Stop</button>
+</td>
+<td><input id="timer11" type="text" value=""></td>
+</tr>
+<tr>
+<td>T ACTION 4</td>
+<td>
+<button id="start12" onclick="startTimer('timer12')">Start</button>
+<button id="stop12" style="display: none" onclick="stopTimer('timer12')">Stop</button>
+</td>
+<td><input id="timer12" type="text" value=""></td>
+</tr>
+<tr>
+<td>R ACTION 1</td>
+<td>
+<button id="start13" onclick="startTimer('timer13')">Start</button>
+<button id="stop13" style="display: none" onclick="stopTimer('timer13')">Stop</button>
+</td>
+<td><input id="timer13" type="text" value=""></td>
+</tr>
+<tr>
+<td>R ACTION 2</td>
+<td>
+<button id="start14" onclick="startTimer('timer14')">Start</button>
+<button id="stop14" style="display: none" onclick="stopTimer('timer14')">Stop</button>
+</td>
+<td><input id="timer14" type="text" value=""></td>
+</tr>
+<tr>
+<td>R ACTION 3</td>
+<td>
+<button id="start15" onclick="startTimer('timer15')">Start</button>
+<button id="stop15" style="display: none" onclick="stopTimer('timer15')">Stop</button>
+</td>
+<td><input id="timer15" type="text" value=""></td>
+</tr>
+<tr>
+<td>R ACTION 4</td>
+<td>
+<button id="start16" onclick="startTimer('timer16')">Start</button>
+<button id="stop16" style="display: none" onclick="stopTimer('timer16')">Stop</button>
+</td>
+<td><input id="timer16" type="text" value=""></td>
+		</tr>
+	</tbody>
+</table>
+<div class="output-container">
+  <textarea id="output" rows="5"></textarea>
+</div>
+
+</body>
+</html>
